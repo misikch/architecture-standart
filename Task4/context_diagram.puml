@@ -1,0 +1,24 @@
+@startuml context_diagram_callcenter
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title "Контекстная диаграмма доступа к ставкам для кол-центров"
+
+Person(client, "Клиент", "Звонит для консультации по депозитам")
+Person(back_office_employee, "Сотрудник бэк-офиса", "Обновляет ставки по депозитам")
+Person(bank_cc_employee, "Сотрудник кол-центра банка", "Консультирует клиентов по телефону")
+Person(partner_cc_employee, "Сотрудник партнерского кол-центра", "Консультирует клиентов по телефону")
+
+System(deposit_system, "Система управления депозитами", "Централизованное управление депозитными продуктами и ставками")
+System(bank_cc_system, "Система кол-центра банка", "Система для работы операторов кол-центра банка")
+System(partner_cc_system, "Система партнерского кол-центра", "Внешняя система для работы операторов партнерского кол-центра")
+
+Rel(client, bank_cc_employee, "Звонит для консультации")
+Rel(client, partner_cc_employee, "Звонит для консультации")
+Rel(back_office_employee, deposit_system, "Обновляет ставки")
+Rel(bank_cc_employee, bank_cc_system, "Использует для консультирования")
+Rel(partner_cc_employee, partner_cc_system, "Использует для консультирования")
+
+Rel(deposit_system, bank_cc_system, "Передает актуальные ставки")
+Rel(deposit_system, partner_cc_system, "Передает файлы с актуальными ставками")
+
+@enduml

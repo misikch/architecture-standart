@@ -1,0 +1,47 @@
+@startuml container_diagram_callcenter
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title "Диаграмма контейнеров доступа к ставкам для кол-центров"
+
+Person(back_office_employee, "Сотрудник бэк-офиса", "Обновляет ставки по депозитам")
+Person(bank_cc_employee, "Сотрудник кол-центра банка", "Консультирует клиентов по телефону")
+Person(partner_cc_employee, "Сотрудник партнерского кол-центра", "Консультирует клиентов по телефону")
+
+System_Boundary(deposit_system, "Система управления депозитами") {
+    Container(rates_storage, "Хранилище ставок", "PostgreSQL", "Централизованное хранилище ставок по депозитам")
+    Container(admin_ui, "Интерфейс администрирования", "React.js", "Интерфейс для управления ставками")
+    Container(rates_api, "API ставок", "Java, Spring Boot", "REST API для доступа к ставкам")
+    Container(file_export, "Модуль экспорта файлов", "Java", "Генерирует файлы с актуальными ставками")
+    Container(file_transfer, "Модуль передачи файлов", "Java", "Передает файлы с ставками партнерам по SFTP")
+}
+
+System_Boundary(bank_cc_system, "Система кол-центра банка") {
+    Container(cc_api, "API кол-центра", "Java, Spring Boot", "API для интеграции с внешними системами")
+    Container(cc_ui, "Интерфейс оператора", "React.js", "Интерфейс для работы операторов кол-центра")
+    Container(cc_db, "База данных кол-центра", "PostgreSQL", "Хранит данные для работы кол-центра")
+}
+
+System_Boundary(partner_cc_system, "Система партнерского кол-центра") {
+    Container(partner_file_import, "Модуль импорта файлов", "Внешняя система", "Импортирует файлы с ставками")
+    Container(partner_ui, "Интерфейс оператора партнера", "Внешняя система", "Интерфейс для работы операторов")
+    Container(partner_db, "База данных партнера", "Внешняя система", "Хранит данные для работы")
+}
+
+Rel(back_office_employee, admin_ui, "Обновляет ставки", "HTTPS")
+Rel(bank_cc_employee, cc_ui, "Консультирует клиентов", "HTTPS")
+Rel(partner_cc_employee, partner_ui, "Консультирует клиентов", "HTTPS")
+
+Rel(admin_ui, rates_api, "Использует", "JSON/HTTPS")
+Rel(rates_api, rates_storage, "Читает/Записывает", "SQL")
+Rel(file_export, rates_storage, "Читает", "SQL")
+Rel(file_export, file_transfer, "Передает файлы")
+
+Rel(rates_api, cc_api, "Передает ставки", "REST API, HTTPS")
+Rel(cc_api, cc_db, "Сохраняет ставки", "SQL")
+Rel(cc_ui, cc_db, "Читает ставки", "SQL")
+
+Rel(file_transfer, partner_file_import, "Передает файлы", "SFTP")
+Rel(partner_file_import, partner_db, "Сохраняет ставки", "Внутренний протокол")
+Rel(partner_ui, partner_db, "Читает ставки", "Внутренний протокол")
+
+@enduml

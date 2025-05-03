@@ -1,0 +1,20 @@
+@startuml context_diagram
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title "Контекстная диаграмма системы управления депозитами"
+
+Person(new_client, "Новый клиент", "Потенциальный клиент банка")
+Person(existing_client, "Существующий клиент", "Текущий клиент банка")
+Person(call_center_employee, "Сотрудник кол-центра", "Обрабатывает заявки с сайта")
+Person(back_office_employee, "Сотрудник бэк-офиса", "Обрабатывает депозитные заявки")
+
+System(deposit_system, "Система управления депозитами", "Обеспечивает управление депозитами и процессами их открытия")
+
+Rel(new_client, deposit_system, "Просматривает депозиты и подаёт заявки через сайт")
+Rel(existing_client, deposit_system, "Просматривает депозиты и открывает их через интернет-банк")
+Rel(call_center_employee, deposit_system, "Обрабатывает заявки с сайта")
+Rel(back_office_employee, deposit_system, "Подтверждает и открывает депозиты")
+Rel(deposit_system, new_client, "Отправляет уведомления")
+Rel(deposit_system, existing_client, "Отправляет уведомления и SMS-коды")
+
+@enduml
