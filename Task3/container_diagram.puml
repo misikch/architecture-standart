@@ -1,0 +1,36 @@
+@startuml container_diagram
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title "Диаграмма контейнеров системы управления депозитами"
+
+Person(new_client, "Новый клиент", "Потенциальный клиент банка")
+Person(existing_client, "Существующий клиент", "Текущий клиент банка")
+Person(call_center_employee, "Сотрудник кол-центра", "Обрабатывает заявки с сайта")
+Person(back_office_employee, "Сотрудник бэк-офиса", "Обрабатывает депозитные заявки")
+
+System_Boundary(deposit_system, "Система управления депозитами") {
+    Container(website, "Сайт банка", "PHP, React.js", "Предоставляет информацию о депозитах и форму заявки")
+    Container(internet_bank, "Интернет-банк", "ASP.NET MVC, MS SQL", "Позволяет клиентам управлять счетами и открывать депозиты")
+    Container(deposit_service, "Сервис управления депозитами", "Java, Spring Boot, PostgreSQL", "Централизованное управление депозитными продуктами и ставками")
+    Container(abs, "АБС", "Delphi, Oracle", "Автоматизированная банковская система")
+    Container(call_center_system, "Система кол-центра", "React.js, Java, PostgreSQL", "Система для работы операторов кол-центра")
+    Container(sms_gateway, "СМС-шлюз", "", "Система отправки SMS-сообщений клиентам")
+}
+
+Rel(new_client, website, "Просматривает депозиты и подаёт заявки", "HTTPS")
+Rel(existing_client, internet_bank, "Открывает депозиты", "HTTPS")
+Rel(call_center_employee, call_center_system, "Обрабатывает заявки", "HTTPS")
+Rel(back_office_employee, abs, "Подтверждает заявки", "TCP/IP")
+
+Rel(website, deposit_service, "Получает информацию о депозитах и передаёт заявки", "REST API, HTTPS")
+Rel(internet_bank, deposit_service, "Получает информацию о депозитах и передаёт заявки", "REST API, HTTPS")
+Rel(call_center_system, deposit_service, "Получает и обновляет заявки", "REST API, HTTPS")
+
+Rel(deposit_service, abs, "Передаёт заявки и получает данные о клиентах", "REST API, HTTPS")
+Rel(abs, sms_gateway, "Отправляет запросы на отправку SMS", "REST API, HTTPS")
+Rel(deposit_service, sms_gateway, "Отправляет запросы на отправку SMS", "REST API, HTTPS")
+
+Rel(sms_gateway, new_client, "Отправляет SMS-уведомления", "SMS")
+Rel(sms_gateway, existing_client, "Отправляет SMS-коды и уведомления", "SMS")
+
+@enduml
